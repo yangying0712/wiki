@@ -1,0 +1,91 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { AttributeRadar } from '../../components/AttributeRadar';
+import { EmotionChart } from '../../components/EmotionChart';
+import { TagList } from '../../components/ScopedTag';
+
+export async function getStaticPaths() {
+  const characters = await getCollection('characters');
+  return characters.map((character) => ({
+    params: { slug: character.slug },
+    props: { character },
+  }));
+}
+
+const { character } = Astro.props;
+const { Content } = await character.render();
+---
+
+<BaseLayout title={`${character.data.name} | 角色档案`} themeColor={character.data.color}>
+  <article class="max-w-4xl mx-auto px-6 py-12">
+    <!-- 头部信息 -->
+    <header class="mb-12">
+      <div class="flex items-center gap-6 mb-6">
+        <div 
+          class="w-24 h-24 rounded-full flex items-center justify-center text-4xl font-bold text-white shadow-lg"
+          style={`background-color: ${character.data.color}; box-shadow: 0 0 30px ${character.data.color}40`}
+        >
+          {character.data.name.charAt(0)}
+        </div>
+        <div>
+          <h1 class="text-4xl font-bold" style={`color: ${character.data.color}`}>
+            {character.data.name}
+          </h1>
+          {character.data.alias && (
+            <p class="text-[var(--color-muted)] mt-1">
+              别名: {character.data.alias.join(' / ')}
+            </p>
+          )}
+          <span class="inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium bg-[var(--color-card)]">
+            {character.data.role === 'protagonist' && '主角'}
+            {character.data.role === 'love_interest' && '攻'}
+            {character.data.role === 'supporting' && '配角'}
+            {character.data.role === 'antagonist' && '反派'}
+          </span>
+        </div>
+      </div>
+      
+      <p class="text-xl text-[var(--color-muted)] leading-relaxed">
+        {character.data.description}
+      </p>
+      
+      {character.data.tags && (
+        <div class="mt-6">
+          <TagList tags={character.data.tags} client:load />
+        </div>
+      )}
+    </header>
+
+    <!-- 属性雷达图 -->
+    {character.data.attributes && (
+      <section class="editorial-card mb-8">
+        <h2 class="text-2xl font-bold mb-6">⬡ 属性分布</h2>
+        <AttributeRadar 
+          name={character.data.name}
+          color={character.data.color}
+          attributes={character.data.attributes}
+          client:load
+        />
+      </section>
+    )}
+
+    <!-- 情感历程 -->
+    {character.data.emotionTimeline && character.data.emotionTimeline.length > 0 && (
+      <section class="editorial-card mb-8">
+        <h2 class="text-2xl font-bold mb-6">📈 情感历程</h2>
+        <EmotionChart 
+          data={character.data.emotionTimeline}
+          characterName={character.data.name}
+          color={character.data.color}
+          client:load
+        />
+      </section>
+    )}
+
+    <!-- 正文内容 -->
+    <section class="prose dark:prose-invert max-w-none">
+      <Content />
+    </section>
+  </article>
+</BaseLayout>
