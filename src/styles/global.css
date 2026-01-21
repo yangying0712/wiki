@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: theme('colors.indigo.600');
+    --color-background: theme('colors.white');
+    --color-text: theme('colors.gray.900');
+    --color-muted: theme('colors.gray.500');
+    --color-border: theme('colors.gray.200');
+    --color-card: theme('colors.gray.50');
+  }
+
+  .dark {
+    --color-primary: theme('colors.indigo.400');
+    --color-background: theme('colors.gray.950');
+    --color-text: theme('colors.gray.100');
+    --color-muted: theme('colors.gray.400');
+    --color-border: theme('colors.gray.800');
+    --color-card: theme('colors.gray.900');
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-[var(--color-background)] text-[var(--color-text)] font-serif antialiased;
+    @apply transition-colors duration-300;
+  }
+
+  /* 衬线字体排版优化 */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif tracking-tight;
+  }
+
+  /* 杂志风格链接 */
+  a {
+    @apply transition-colors duration-200;
+  }
+}
+
+@layer components {
+  /* 杂志风格卡片 */
+  .editorial-card {
+    @apply bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg p-6;
+    @apply transition-all duration-300 hover:shadow-lg;
+  }
+
+  /* 胶囊标签基础样式 */
+  .tag-capsule {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+    @apply transition-all duration-200 hover:scale-105;
+  }
+
+  /* 发光效果 (用于深色模式雷达图) */
+  .glow-effect {
+    filter: drop-shadow(0 0 8px currentColor);
+  }
+
+  /* 股价涨跌指示器 */
+  .stock-up {
+    @apply text-green-500;
+  }
+
+  .stock-down {
+    @apply text-red-500;
+  }
+
+  .stock-stable {
+    @apply text-gray-500;
+  }
+}
+
+@layer utilities {
+  /* 文字渐变效果 */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r;
+  }
+
+  /* 杂志风格的大号首字母 */
+  .drop-cap::first-letter {
+    @apply float-left text-7xl font-bold leading-none mr-2 mt-1;
+    @apply text-[var(--color-primary)];
+  }
+}

@@ -1,0 +1,89 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { TagList } from '../../components/ScopedTag';
+import { idToSlug } from '../../utils/content';
+
+export async function getStaticPaths() {
+  const extras = await getCollection('extras');
+  const characters = await getCollection('characters');
+  
+  // 创建角色 Map 用于 O(1) 查找 (Astro 5.x 使用 id)
+  const charactersMap = new Map(
+    characters.map((char) => [char.id, char.data.color])
+  );
+  
+  return extras.map((extra) => {
+    // 查找关联角色的颜色
+    const themeColor = extra.data.featuredCharacter
+      ? charactersMap.get(extra.data.featuredCharacter.id)
+      : undefined;
+    
+    return {
+      params: { slug: idToSlug(extra.id) },
+      props: { extra, themeColor },
+    };
+  });
+}
+
+const { extra, themeColor } = Astro.props;
+const { Content } = await extra.render();
+---
+
+<BaseLayout 
+  title={`${extra.data.title} | 随笔`} 
+  themeColor={themeColor}
+>
+  <article class="max-w-3xl mx-auto px-6 py-12">
+    <header class="mb-12 text-center">
+      <div class="flex items-center justify-center gap-3 mb-4">
+        <span class={`
+          px-3 py-1 rounded-full text-sm font-medium
+          ${extra.data.type === 'essay' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : ''}
+          ${extra.data.type === 'analysis' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' : ''}
+          ${extra.data.type === 'fanfic' ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400' : ''}
+          ${extra.data.type === 'meta' ? 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400' : ''}
+          ${extra.data.type === 'review' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : ''}
+        `}>
+          {extra.data.type === 'essay' && '随笔'}
+          {extra.data.type === 'analysis' && '分析'}
+          {extra.data.type === 'fanfic' && '同人'}
+          {extra.data.type === 'meta' && 'Meta'}
+          {extra.data.type === 'review' && '书评'}
+        </span>
+        {extra.data.containsSpoilers && (
+          <span class="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+            ⚠️ 含剧透
+          </span>
+        )}
+      </div>
+      
+      <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-4">
+        {extra.data.title}
+      </h1>
+      
+      <p class="text-xl text-[var(--color-muted)]">
+        {extra.data.description}
+      </p>
+      
+      <div class="mt-4 text-sm text-[var(--color-muted)]">
+        发布于 {extra.data.publishedAt.toLocaleDateString('zh-CN', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        })}
+      </div>
+      
+      {extra.data.tags && (
+        <div class="mt-6 flex justify-center">
+          <TagList tags={extra.data.tags} client:load />
+        </div>
+      )}
+    </header>
+
+    <!-- 正文内容 -->
+    <div class="prose dark:prose-invert prose-lg max-w-none drop-cap">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>

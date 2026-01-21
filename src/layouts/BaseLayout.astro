@@ -1,0 +1,94 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  themeColor?: string;
+}
+
+const { title, description = '角色关系研究与剧情伏笔追踪系统', themeColor } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <!-- 衬线字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    {themeColor && (
+      <style define:vars={{ themeColor }}>
+        :root {
+          --color-primary: var(--themeColor);
+        }
+      </style>
+    )}
+  </head>
+  <body class="min-h-screen">
+    <header class="sticky top-0 z-50 bg-[var(--color-background)]/80 backdrop-blur-md border-b border-[var(--color-border)]">
+      <nav class="max-w-7xl mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+          <a href="/" class="text-2xl font-bold tracking-tight hover:text-[var(--color-primary)] transition-colors">
+            角色关系研究
+          </a>
+          <div class="flex items-center gap-8">
+            <a href="/characters" class="hover:text-[var(--color-primary)] transition-colors">角色</a>
+            <a href="/relationships" class="hover:text-[var(--color-primary)] transition-colors">关系</a>
+            <a href="/clues" class="hover:text-[var(--color-primary)] transition-colors">伏笔墙</a>
+            <a href="/extras" class="hover:text-[var(--color-primary)] transition-colors">随笔</a>
+            <button
+              id="theme-toggle"
+              class="p-2 rounded-lg hover:bg-[var(--color-card)] transition-colors"
+              aria-label="切换主题"
+            >
+              <svg class="w-5 h-5 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+              <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="border-t border-[var(--color-border)] mt-20">
+      <div class="max-w-7xl mx-auto px-6 py-12 text-center text-[var(--color-muted)]">
+        <p>角色关系研究与剧情伏笔追踪系统</p>
+        <p class="mt-2 text-sm">Built with Astro + React + Tailwind</p>
+      </div>
+    </footer>
+
+    <script>
+      // 主题切换逻辑
+      const themeToggle = document.getElementById('theme-toggle');
+      const html = document.documentElement;
+
+      // 初始化主题
+      if (localStorage.getItem('theme') === 'dark' || 
+          (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        html.classList.add('dark');
+      }
+
+      themeToggle?.addEventListener('click', () => {
+        html.classList.toggle('dark');
+        localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+      });
+    </script>
+  </body>
+</html>
