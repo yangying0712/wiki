@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import { TagList } from '../components/ScopedTag';
+import { idToSlug } from '../utils/content';
 
 // 获取所有附加内容
 const extras = await getCollection('extras');
@@ -26,7 +27,7 @@ const extras = await getCollection('extras');
       <div class="space-y-6">
         {extras.map((extra) => (
           <a 
-            href={`/moments/${extra.slug}`}
+            href={`/moments/${idToSlug(extra.id)}`}
             class="editorial-card block group"
           >
             <div class="flex items-start justify-between gap-4">

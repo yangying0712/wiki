@@ -4,11 +4,12 @@ import { getCollection } from 'astro:content';
 import { AttributeRadar } from '../../components/AttributeRadar';
 import { EmotionChart } from '../../components/EmotionChart';
 import { TagList } from '../../components/ScopedTag';
+import { idToSlug } from '../../utils/content';
 
 export async function getStaticPaths() {
   const characters = await getCollection('characters');
   return characters.map((character) => ({
-    params: { slug: character.slug },
+    params: { slug: idToSlug(character.id) },
     props: { character },
   }));
 }

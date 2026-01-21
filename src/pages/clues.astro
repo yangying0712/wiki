@@ -2,25 +2,27 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import { ClueTracker } from '../components/ClueTracker';
+import { idToSlug } from '../utils/content';
 
 // 获取所有伏笔和章节
 const cluesCollection = await getCollection('clues');
 const chaptersCollection = await getCollection('chapters');
 
-// 创建章节 Map 用于快速查找
+// 创建章节 Map 用于快速查找 (使用 id 作为 key)
 const chaptersMap = new Map(
-  chaptersCollection.map((chapter) => [chapter.slug, chapter.data.number])
+  chaptersCollection.map((chapter) => [chapter.id, chapter.data.number])
 );
 
 // 转换为 ClueTracker 需要的格式，正确解析章节引用
+// Astro 5.x 中 reference 返回的是包含 id 的对象
 const clues = cluesCollection.map((clue) => ({
-  id: clue.slug,
+  id: idToSlug(clue.id),
   title: clue.data.title,
   description: clue.data.description,
   status: clue.data.status,
-  plantedChapter: chaptersMap.get(clue.data.plantedIn.slug) ?? 1,
+  plantedChapter: chaptersMap.get(clue.data.plantedIn.id) ?? 1,
   recoveredChapter: clue.data.recoveredIn 
-    ? chaptersMap.get(clue.data.recoveredIn.slug) 
+    ? chaptersMap.get(clue.data.recoveredIn.id) 
     : undefined,
   importance: clue.data.importance,
   theories: clue.data.theories,

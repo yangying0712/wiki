@@ -2,24 +2,25 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import { TagList } from '../../components/ScopedTag';
+import { idToSlug } from '../../utils/content';
 
 export async function getStaticPaths() {
   const extras = await getCollection('extras');
   const characters = await getCollection('characters');
   
-  // 创建角色 Map 用于 O(1) 查找
+  // 创建角色 Map 用于 O(1) 查找 (Astro 5.x 使用 id)
   const charactersMap = new Map(
-    characters.map((char) => [char.slug, char.data.color])
+    characters.map((char) => [char.id, char.data.color])
   );
   
   return extras.map((extra) => {
     // 查找关联角色的颜色
     const themeColor = extra.data.featuredCharacter
-      ? charactersMap.get(extra.data.featuredCharacter.slug)
+      ? charactersMap.get(extra.data.featuredCharacter.id)
       : undefined;
     
     return {
-      params: { slug: extra.slug },
+      params: { slug: idToSlug(extra.id) },
       props: { extra, themeColor },
     };
   });

@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import { TagList } from '../../components/ScopedTag';
+import { idToSlug } from '../../utils/content';
 
 // 获取所有角色
 const characters = await getCollection('characters');
@@ -29,7 +30,7 @@ const characters = await getCollection('characters');
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {characters.map((character) => (
           <a 
-            href={`/characters/${character.slug}`}
+            href={`/characters/${idToSlug(character.id)}`}
             class="editorial-card group block"
             style={`border-top: 4px solid ${character.data.color}`}
           >
