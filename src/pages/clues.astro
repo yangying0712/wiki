@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import { ClueTracker } from '../components/ClueTracker';
+import { ClueManager } from '../components/ClueManager';
 import { idToSlug } from '../utils/content';
 
 // 获取所有伏笔和章节
@@ -27,6 +28,17 @@ const clues = cluesCollection.map((clue) => ({
   importance: clue.data.importance,
   theories: clue.data.theories,
 }));
+
+// 转换为管理组件需要的格式
+const cluesForManager = clues.map((clue) => ({
+  title: clue.title,
+  description: clue.description,
+  status: clue.status,
+  plantedChapter: clue.plantedChapter,
+  recoveredChapter: clue.recoveredChapter,
+  importance: clue.importance,
+  theories: clue.theories || [],
+}));
 ---
 
 <BaseLayout title="伏笔墙 | 角色关系研究">
@@ -34,31 +46,30 @@ const clues = cluesCollection.map((clue) => ({
     <div class="text-center mb-12">
       <h1 class="text-4xl font-bold mb-4">🔍 伏笔追踪墙</h1>
       <p class="text-xl text-[var(--color-muted)]">
-        追踪每一个伏笔的埋设与回收状态
+        追踪每一个伏笔的埋设与回收状态，支持增删改查
       </p>
     </div>
 
-    {clues.length === 0 ? (
-      <div class="text-center py-20 editorial-card">
-        <p class="text-[var(--color-muted)] text-lg">
-          暂无伏笔数据。请在 <code class="bg-[var(--color-card)] px-2 py-1 rounded">src/content/clues/</code> 目录下添加伏笔文件。
-        </p>
-        <div class="mt-8 p-6 bg-[var(--color-card)] rounded-lg text-left max-w-2xl mx-auto">
-          <h3 class="font-semibold mb-2">示例伏笔数据结构：</h3>
-          <pre class="text-sm overflow-x-auto"><code>{`---
-title: "神秘信件"
-description: "第3章出现的未署名信件"
-status: "planted"
-plantedIn: chapter-3
-importance: "major"
-theories:
-  - "可能来自失踪的母亲"
-  - "可能是反派的陷阱"
----`}</code></pre>
+    <!-- 伏笔管理区 -->
+    <div class="mb-12">
+      <ClueManager initialClues={cluesForManager} client:load />
+    </div>
+
+    <!-- 分隔线 -->
+    <div class="border-t border-[var(--color-border)] my-8"></div>
+
+    <!-- 伏笔追踪展示区 -->
+    <div>
+      <h2 class="text-2xl font-bold mb-6">📋 伏笔追踪器</h2>
+      {clues.length === 0 ? (
+        <div class="text-center py-12 editorial-card">
+          <p class="text-[var(--color-muted)] text-lg">
+            暂无伏笔数据。使用上方管理工具添加伏笔，或在 <code class="bg-[var(--color-card)] px-2 py-1 rounded">src/content/clues/</code> 目录下添加伏笔文件。
+          </p>
         </div>
-      </div>
-    ) : (
-      <ClueTracker clues={clues} client:load />
-    )}
+      ) : (
+        <ClueTracker clues={clues} client:load />
+      )}
+    </div>
   </section>
 </BaseLayout>
