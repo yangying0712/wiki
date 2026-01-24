@@ -1,0 +1,180 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { TagList } from '../../components/ScopedTag';
+import { idToSlug } from '../../utils/content';
+
+export async function getStaticPaths() {
+  const galleries = await getCollection('gallery');
+  return galleries.map((gallery) => ({
+    params: { slug: idToSlug(gallery.id) },
+    props: { gallery },
+  }));
+}
+
+const { gallery } = Astro.props;
+const { Content } = await gallery.render();
+
+const isDoujinshi = gallery.data.category === 'doujinshi';
+const themeColor = isDoujinshi ? '#ec4899' : '#06b6d4';
+---
+
+<BaseLayout 
+  title={`${gallery.data.title} | 图片集`}
+  themeColor={themeColor}
+>
+  <article class="max-w-6xl mx-auto px-6 py-12">
+    <!-- 头部信息 -->
+    <header class="mb-12">
+      <div class="flex items-center gap-2 mb-4">
+        <a href="/gallery" class="text-[var(--color-muted)] hover:text-[var(--color-primary)] transition-colors flex items-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          返回图集
+        </a>
+        <span class="text-[var(--color-muted)]">/</span>
+        <span class={`px-3 py-1 rounded-full text-sm font-medium ${
+          isDoujinshi 
+            ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400' 
+            : 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400'
+        }`}>
+          {isDoujinshi ? '📚 本子翻译' : '🎨 模型截图'}
+        </span>
+        {gallery.data.subCategory && (
+          <>
+            <span class="text-[var(--color-muted)]">/</span>
+            <span class="px-2 py-1 bg-[var(--color-card)] rounded text-sm">
+              {gallery.data.subCategory}
+            </span>
+          </>
+        )}
+      </div>
+
+      <h1 class="text-4xl font-bold mb-4" style={`color: ${themeColor};`}>
+        {gallery.data.title}
+      </h1>
+      
+      <p class="text-xl text-[var(--color-muted)] mb-4">
+        {gallery.data.description}
+      </p>
+
+      {gallery.data.originalWork && (
+        <div class="text-sm text-[var(--color-muted)] mb-4 p-4 bg-[var(--color-card)] rounded-lg">
+          <strong>原作信息:</strong> {gallery.data.originalWork.title}
+          {gallery.data.originalWork.author && ` · 作者: ${gallery.data.originalWork.author}`}
+          {gallery.data.originalWork.source && ` · 来源: ${gallery.data.originalWork.source}`}
+        </div>
+      )}
+
+      <div class="flex items-center gap-4 text-sm text-[var(--color-muted)]">
+        <span>📅 {gallery.data.publishedAt.toLocaleDateString('zh-CN')}</span>
+        <span>🖼️ {gallery.data.images.length} 张图片</span>
+        {gallery.data.isNSFW && (
+          <span class="px-2 py-1 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-full text-xs font-medium">
+            🔞 NSFW
+          </span>
+        )}
+      </div>
+
+      {gallery.data.tags && gallery.data.tags.length > 0 && (
+        <div class="mt-4">
+          <TagList tags={gallery.data.tags} client:load />
+        </div>
+      )}
+    </header>
+
+    <!-- NSFW 警告 -->
+    {gallery.data.isNSFW && (
+      <div class="mb-8 p-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+        <div class="flex items-center gap-3 text-red-700 dark:text-red-400">
+          <span class="text-2xl">⚠️</span>
+          <div>
+            <strong class="block">注意：本内容可能包含成人元素</strong>
+            <span class="text-sm">请确保您已年满18周岁且当地法律允许查看此类内容。</span>
+          </div>
+        </div>
+      </div>
+    )}
+
+    <!-- 图片画廊 -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+        <span>🖼️</span> 图片预览
+      </h2>
+      
+      <div class={`grid gap-4 ${isDoujinshi ? 'md:grid-cols-2 lg:grid-cols-3' : 'md:grid-cols-2'}`}>
+        {gallery.data.images.map((image, index) => (
+          <div 
+            class="group relative rounded-xl overflow-hidden bg-[var(--color-card)] border border-[var(--color-border)] hover:shadow-xl transition-all duration-300"
+            style={`animation: fadeInUp 0.5s ease-out ${index * 50}ms both;`}
+          >
+            <div class={`${isDoujinshi ? 'aspect-[3/4]' : 'aspect-video'} bg-gray-100 dark:bg-gray-800`}>
+              <img 
+                src={image.src} 
+                alt={image.caption || `图片 ${index + 1}`}
+                class="w-full h-full object-contain"
+                loading="lazy"
+              />
+            </div>
+            
+            {(image.caption || image.page) && (
+              <div class="p-3 text-center">
+                {image.page && (
+                  <span class="text-xs text-[var(--color-muted)] mr-2">P{image.page}</span>
+                )}
+                {image.caption && (
+                  <span class="text-sm">{image.caption}</span>
+                )}
+              </div>
+            )}
+
+            <!-- 放大按钮 -->
+            <button 
+              class="absolute top-2 right-2 p-2 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              onclick={`window.open('${image.src}', '_blank')`}
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+              </svg>
+            </button>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 正文内容 -->
+    {Content && (
+      <section class="prose dark:prose-invert max-w-none mb-12">
+        <Content />
+      </section>
+    )}
+
+    <!-- 返回按钮 -->
+    <div class="text-center">
+      <a 
+        href="/gallery"
+        class="inline-flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 hover:scale-105 text-white"
+        style={`background: ${themeColor};`}
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        返回图片集
+      </a>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

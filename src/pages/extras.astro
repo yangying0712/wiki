@@ -16,16 +16,56 @@ const extrasForManager = extras.map((extra) => ({
   publishedAt: extra.data.publishedAt.toISOString().split('T')[0],
   tags: extra.data.tags || [],
   containsSpoilers: extra.data.containsSpoilers,
+  sensitiveContent: extra.data.sensitiveContent || false,
 }));
+
+// 类型标签配置
+const typeLabels: Record<string, { label: string; color: string; icon: string }> = {
+  essay: { label: '随笔', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', icon: '✏️' },
+  analysis: { label: '分析', color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400', icon: '🔍' },
+  fanfic: { label: '同人', color: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400', icon: '💕' },
+  meta: { label: 'Meta', color: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400', icon: '📊' },
+  review: { label: '书评', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', icon: '📖' },
+  plot_analysis: { label: '剧情/CP分析', color: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400', icon: '💖' },
+  korean_trans: { label: '韩网翻译', color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400', icon: '🇰🇷' },
+  brain_hole: { label: '脑洞段子', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400', icon: '💡' },
+  dark_zone: { label: '鹿压抑专区', color: 'bg-gray-800 text-gray-100 dark:bg-gray-700 dark:text-gray-200', icon: '🌑' },
+};
+
+// 分类组
+const categoryGroups = [
+  { key: 'all', label: '全部', icon: '📋' },
+  { key: 'plot_analysis', label: '剧情/CP分析', icon: '💖' },
+  { key: 'korean_trans', label: '韩网翻译', icon: '🇰🇷' },
+  { key: 'brain_hole', label: '脑洞段子', icon: '💡' },
+  { key: 'dark_zone', label: '鹿压抑专区', icon: '🌑' },
+  { key: 'essay', label: '随笔', icon: '✏️' },
+  { key: 'analysis', label: '分析', icon: '🔍' },
+  { key: 'fanfic', label: '同人', icon: '💕' },
+];
 ---
 
 <BaseLayout title="随笔 | Kind-Black-Cat">
   <section class="max-w-5xl mx-auto px-6 py-12">
     <div class="text-center mb-12">
-      <h1 class="text-4xl font-bold mb-4"> 随笔与分析</h1>
+      <h1 class="text-4xl font-bold mb-4 flex items-center justify-center gap-3">
+        <span class="text-5xl">📝</span> 随笔与分析
+      </h1>
       <p class="text-xl text-[var(--color-muted)]">
-        独立的短篇、分析文章与个人感想，支持增删改查
+        独立的短篇、分析文章与个人感想，支持分类筛选
       </p>
+    </div>
+
+    <!-- 分类筛选区 -->
+    <div class="mb-8 flex flex-wrap justify-center gap-2" id="category-filter">
+      {categoryGroups.map((cat) => (
+        <button
+          data-category={cat.key}
+          class="px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:scale-105 border border-[var(--color-border)] hover:border-[var(--color-primary)] category-btn"
+        >
+          <span class="mr-1">{cat.icon}</span> {cat.label}
+        </button>
+      ))}
     </div>
 
     <!-- 随笔管理区 -->
@@ -46,32 +86,30 @@ const extrasForManager = extras.map((extra) => ({
           </p>
         </div>
       ) : (
-        <div class="space-y-6">
+        <div class="space-y-6" id="extras-list">
           {extras.map((extra) => (
             <a 
               href={`/moments/${idToSlug(extra.id)}`}
-              class="editorial-card block group"
+              class={`block group extra-item ${extra.data.type === 'dark_zone' ? 'bg-gray-900/50 dark:bg-gray-950 border border-gray-700 rounded-lg p-6' : 'editorial-card'}`}
+              data-type={extra.data.type}
             >
               <div class="flex items-start justify-between gap-4">
                 <div class="flex-1">
-                  <div class="flex items-center gap-2 mb-2">
+                  <div class="flex items-center gap-2 mb-2 flex-wrap">
                     <span class={`
                       px-2 py-0.5 rounded-full text-xs font-medium
-                      ${extra.data.type === 'essay' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : ''}
-                      ${extra.data.type === 'analysis' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' : ''}
-                      ${extra.data.type === 'fanfic' ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400' : ''}
-                      ${extra.data.type === 'meta' ? 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400' : ''}
-                      ${extra.data.type === 'review' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : ''}
+                      ${typeLabels[extra.data.type]?.color || 'bg-gray-100 text-gray-700'}
                     `}>
-                      {extra.data.type === 'essay' && '随笔'}
-                      {extra.data.type === 'analysis' && '分析'}
-                      {extra.data.type === 'fanfic' && '同人'}
-                      {extra.data.type === 'meta' && 'Meta'}
-                      {extra.data.type === 'review' && '书评'}
+                      {typeLabels[extra.data.type]?.icon} {typeLabels[extra.data.type]?.label || extra.data.type}
                     </span>
                     {extra.data.containsSpoilers && (
                       <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
                         ⚠️ 含剧透
+                      </span>
+                    )}
+                    {extra.data.sensitiveContent && (
+                      <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-800 text-gray-100 dark:bg-gray-700 dark:text-gray-200">
+                        🌑 阴间预警
                       </span>
                     )}
                   </div>
@@ -98,3 +136,50 @@ const extrasForManager = extras.map((extra) => ({
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  // 分类筛选逻辑
+  const categoryBtns = document.querySelectorAll('.category-btn');
+  const extraItems = document.querySelectorAll('.extra-item');
+  
+  let activeCategory = 'all';
+  
+  // 初始化激活状态
+  const allBtn = document.querySelector('[data-category="all"]');
+  if (allBtn) {
+    allBtn.classList.add('bg-[var(--color-primary)]', 'text-white', 'border-[var(--color-primary)]');
+  }
+  
+  categoryBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const category = btn.getAttribute('data-category');
+      if (!category) return;
+      
+      activeCategory = category;
+      
+      // 更新按钮样式
+      categoryBtns.forEach((b) => {
+        b.classList.remove('bg-[var(--color-primary)]', 'text-white', 'border-[var(--color-primary)]');
+      });
+      btn.classList.add('bg-[var(--color-primary)]', 'text-white', 'border-[var(--color-primary)]');
+      
+      // 过滤列表项
+      extraItems.forEach((item) => {
+        const itemType = item.getAttribute('data-type');
+        if (category === 'all' || itemType === category) {
+          (item as HTMLElement).style.display = 'block';
+        } else {
+          (item as HTMLElement).style.display = 'none';
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  .category-btn.active {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+  }
+</style>

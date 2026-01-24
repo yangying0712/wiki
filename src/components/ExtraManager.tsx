@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 
 interface ExtraFormData {
   title: string;
-  type: 'essay' | 'analysis' | 'fanfic' | 'meta' | 'review';
+  type: 'essay' | 'analysis' | 'fanfic' | 'meta' | 'review' | 'plot_analysis' | 'korean_trans' | 'brain_hole' | 'dark_zone';
   description: string;
   publishedAt: string;
   tags: string[];
   containsSpoilers: boolean;
+  sensitiveContent?: boolean;
 }
 
 interface ExtraManagerProps {
@@ -14,12 +15,16 @@ interface ExtraManagerProps {
   onSave?: (extras: ExtraFormData[]) => void;
 }
 
-const typeLabels: Record<string, { label: string; color: string }> = {
-  essay: { label: '随笔', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
-  analysis: { label: '分析', color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' },
-  fanfic: { label: '同人', color: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400' },
-  meta: { label: 'Meta', color: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400' },
-  review: { label: '书评', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
+const typeLabels: Record<string, { label: string; color: string; icon: string }> = {
+  essay: { label: '随笔', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', icon: '✏️' },
+  analysis: { label: '分析', color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400', icon: '🔍' },
+  fanfic: { label: '同人', color: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400', icon: '💕' },
+  meta: { label: 'Meta', color: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400', icon: '📊' },
+  review: { label: '书评', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', icon: '📖' },
+  plot_analysis: { label: '剧情/CP分析', color: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400', icon: '💖' },
+  korean_trans: { label: '韩网翻译', color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400', icon: '🇰🇷' },
+  brain_hole: { label: '脑洞段子', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400', icon: '💡' },
+  dark_zone: { label: '鹿压抑专区', color: 'bg-gray-800 text-gray-100 dark:bg-gray-700 dark:text-gray-200', icon: '🌑' },
 };
 
 export const ExtraManager: React.FC<ExtraManagerProps> = ({ initialExtras, onSave }) => {
@@ -33,6 +38,7 @@ export const ExtraManager: React.FC<ExtraManagerProps> = ({ initialExtras, onSav
     publishedAt: new Date().toISOString().split('T')[0],
     tags: [],
     containsSpoilers: false,
+    sensitiveContent: false,
   });
   const [newTag, setNewTag] = useState('');
 
@@ -44,6 +50,7 @@ export const ExtraManager: React.FC<ExtraManagerProps> = ({ initialExtras, onSav
       publishedAt: new Date().toISOString().split('T')[0],
       tags: [],
       containsSpoilers: false,
+      sensitiveContent: false,
     });
     setNewTag('');
     setEditingIndex(null);
@@ -155,15 +162,29 @@ export const ExtraManager: React.FC<ExtraManagerProps> = ({ initialExtras, onSav
               />
             </div>
             
-            <div className="flex items-center gap-2 pt-6">
-              <input
-                type="checkbox"
-                id="containsSpoilers"
-                checked={formData.containsSpoilers}
-                onChange={(e) => setFormData({ ...formData, containsSpoilers: e.target.checked })}
-                className="w-4 h-4"
-              />
-              <label htmlFor="containsSpoilers" className="text-sm">⚠️ 含剧透内容</label>
+            <div className="flex flex-col gap-2 pt-6">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="containsSpoilers"
+                  checked={formData.containsSpoilers}
+                  onChange={(e) => setFormData({ ...formData, containsSpoilers: e.target.checked })}
+                  className="w-4 h-4"
+                />
+                <label htmlFor="containsSpoilers" className="text-sm">⚠️ 含剧透内容</label>
+              </div>
+              {formData.type === 'dark_zone' && (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="sensitiveContent"
+                    checked={formData.sensitiveContent}
+                    onChange={(e) => setFormData({ ...formData, sensitiveContent: e.target.checked })}
+                    className="w-4 h-4"
+                  />
+                  <label htmlFor="sensitiveContent" className="text-sm">🌑 阴间泥塑嬷预警</label>
+                </div>
+              )}
             </div>
           </div>
           
@@ -235,17 +256,22 @@ export const ExtraManager: React.FC<ExtraManagerProps> = ({ initialExtras, onSav
         {extras.map((extra, index) => (
           <div
             key={index}
-            className="p-4 bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg"
+            className={`p-4 border border-[var(--color-border)] rounded-lg ${extra.type === 'dark_zone' ? 'bg-gray-900/50 dark:bg-gray-950' : 'bg-[var(--color-card)]'}`}
           >
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${typeLabels[extra.type]?.color || 'bg-gray-100 text-gray-700'}`}>
-                    {typeLabels[extra.type]?.label || extra.type}
+                    {typeLabels[extra.type]?.icon} {typeLabels[extra.type]?.label || extra.type}
                   </span>
                   {extra.containsSpoilers && (
                     <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
                       ⚠️ 含剧透
+                    </span>
+                  )}
+                  {extra.sensitiveContent && (
+                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-800 text-gray-100 dark:bg-gray-700 dark:text-gray-200">
+                      🌑 阴间预警
                     </span>
                   )}
                 </div>
