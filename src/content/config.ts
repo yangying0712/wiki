@@ -123,10 +123,28 @@ const extras = defineCollection({
   }),
 });
 
+// 金句集合 - 名台词记录
+const quotes = defineCollection({
+  type: 'content',
+  schema: z.object({
+    quote: z.string(), // 金句内容
+    speaker: reference('characters'), // 说话角色
+    chapter: z.number().optional(), // 出自章节
+    context: z.string().optional(), // 语境说明
+    // 标签
+    tags: z.array(z.string()).optional(),
+    // 重要性
+    importance: z.enum(['normal', 'memorable', 'iconic']).default('normal'),
+    // 创建时间
+    createdAt: z.date().optional(),
+  }),
+});
+
 export const collections = {
   characters,
   chapters,
   relationships,
   clues,
   extras,
+  quotes,
 };

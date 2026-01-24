@@ -4,56 +4,44 @@ import { RadarCompare } from '../components/AttributeRadar';
 import { StockTickerList } from '../components/StockTickerItem';
 import { TagList } from '../components/ScopedTag';
 
-// 示例数据 - 实际使用时从 Content Collections 获取
+// 崔要员×金率音 CP数据 - 蓝红配色
 const sampleCharacters = [
   {
-    name: '角色 A',
-    color: '#4f46e5',
-    attributes: { intelligence: 85, strength: 60, charm: 90, loyalty: 75, cunning: 80, emotional: 65 },
+    name: '崔要员',
+    color: '#2563eb', // 蓝色 - 公位
+    attributes: { intelligence: 85, strength: 88, charm: 92, loyalty: 95, cunning: 80, emotional: 70 },
   },
   {
-    name: '角色 B',
-    color: '#dc2626',
-    attributes: { intelligence: 70, strength: 95, charm: 65, loyalty: 90, cunning: 45, emotional: 80 },
-  },
-  {
-    name: '角色 C',
-    color: '#059669',
-    attributes: { intelligence: 95, strength: 40, charm: 70, loyalty: 55, cunning: 90, emotional: 50 },
+    name: '金率音',
+    color: '#dc2626', // 红色 - 受位
+    attributes: { intelligence: 90, strength: 65, charm: 75, loyalty: 88, cunning: 85, emotional: 80 },
   },
 ];
 
 const sampleStockData = [
   {
-    name: '角色 A',
-    color: '#4f46e5',
-    currentValue: 78,
-    previousValue: 72,
-    history: [{ value: 50 }, { value: 55 }, { value: 60 }, { value: 58 }, { value: 65 }, { value: 72 }, { value: 78 }],
+    name: '崔要员',
+    color: '#2563eb', // 蓝色
+    currentValue: 88,
+    previousValue: 80,
+    history: [{ value: 60 }, { value: 65 }, { value: 70 }, { value: 75 }, { value: 80 }, { value: 85 }, { value: 88 }],
   },
   {
-    name: '角色 B',
-    color: '#dc2626',
-    currentValue: 65,
-    previousValue: 70,
-    history: [{ value: 80 }, { value: 75 }, { value: 72 }, { value: 68 }, { value: 70 }, { value: 70 }, { value: 65 }],
-  },
-  {
-    name: '角色 C',
-    color: '#059669',
-    currentValue: 82,
-    previousValue: 75,
-    history: [{ value: 40 }, { value: 45 }, { value: 55 }, { value: 65 }, { value: 70 }, { value: 75 }, { value: 82 }],
+    name: '金率音',
+    color: '#dc2626', // 红色
+    currentValue: 90,
+    previousValue: 80,
+    history: [{ value: 40 }, { value: 55 }, { value: 65 }, { value: 70 }, { value: 80 }, { value: 85 }, { value: 90 }],
   },
 ];
 
 const sampleTags = [
-  'trope:先婚后爱',
-  'vibe:酸涩',
+  'trope:前辈后辈',
+  'trope:卧底恋情',
+  'vibe:甜蜜',
   'status:热恋中',
-  'warning:虐心',
-  'tag:火葬场',
-  'character:攻A',
+  'character:崔要员',
+  'character:金率音',
 ];
 ---
 
@@ -64,7 +52,7 @@ const sampleTags = [
       <div class="grid lg:grid-cols-2 gap-12 items-center">
         <div>
           <h1 class="text-5xl lg:text-6xl font-bold leading-tight mb-6">
-            <span class="text-gradient bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+            <span class="text-gradient bg-gradient-to-r from-blue-600 via-purple-500 to-red-600">
               角色关系研究
             </span>
             <br />
@@ -175,6 +163,16 @@ const sampleTags = [
           </h3>
           <p class="text-[var(--color-muted)]">
             独立的短篇与分析文章，支持动态主题色与剧透警告。
+          </p>
+        </a>
+        
+        <a href="/quotes" class="editorial-card group">
+          <div class="text-4xl mb-4">💬</div>
+          <h3 class="text-xl font-semibold mb-2 group-hover:text-indigo-500 transition-colors">
+            金句记录
+          </h3>
+          <p class="text-[var(--color-muted)]">
+            收录角色经典台词与名场面对白，高亮名言。
           </p>
         </a>
         
