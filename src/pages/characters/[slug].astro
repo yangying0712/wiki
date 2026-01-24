@@ -71,10 +71,10 @@ const { Content } = await character.render();
       </section>
     )}
 
-    <!-- 情感历程 -->
+    <!-- 股价历程 -->
     {character.data.emotionTimeline && character.data.emotionTimeline.length > 0 && (
       <section class="editorial-card mb-8">
-        <h2 class="text-2xl font-bold mb-6">📈 情感历程</h2>
+        <h2 class="text-2xl font-bold mb-6">📈 股价历程</h2>
         <EmotionChart 
           data={character.data.emotionTimeline}
           characterName={character.data.name}

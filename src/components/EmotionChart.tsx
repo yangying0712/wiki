@@ -66,7 +66,7 @@ export const EmotionChart: React.FC<EmotionChartProps> = ({
           className="w-3 h-3 rounded-full"
           style={{ backgroundColor: color }}
         />
-        <span className="font-medium">{characterName} 情感波动</span>
+        <span className="font-medium">{characterName} 股价波动</span>
       </div>
       
       <ResponsiveContainer width="100%" height={300}>
