@@ -1,0 +1,232 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { TagList } from '../../components/ScopedTag';
+import { idToSlug } from '../../utils/content';
+
+export async function getStaticPaths() {
+  const relationships = await getCollection('relationships');
+  return relationships.map((rel) => ({
+    params: { slug: idToSlug(rel.id) },
+    props: { relationship: rel },
+  }));
+}
+
+const { relationship } = Astro.props;
+const { Content } = await relationship.render();
+
+// 获取关联的角色信息
+const characters = await getCollection('characters');
+const memberDetails = relationship.data.members.map((memberRef: { id: string }) => {
+  const char = characters.find(c => c.id === memberRef.id);
+  return char ? { id: char.id, name: char.data.name, color: char.data.color, avatar: char.data.avatar } : null;
+}).filter((m): m is { id: string; name: string; color: string; avatar: string | undefined } => m !== null);
+
+// 获取配色，默认使用角色颜色
+const primaryColor = relationship.data.colors?.primary || memberDetails[0]?.color || '#6366f1';
+const secondaryColor = relationship.data.colors?.secondary || memberDetails[1]?.color || '#f43f5e';
+---
+
+<BaseLayout title={`${relationship.data.name} | 关系详情`}>
+  <article class="max-w-5xl mx-auto px-6 py-12">
+    <!-- 头部区域 - 渐变背景 -->
+    <header 
+      class="relative rounded-2xl overflow-hidden mb-12 p-8 md:p-12"
+      style={`background: linear-gradient(135deg, ${primaryColor}20, ${secondaryColor}20);`}
+    >
+      <!-- 装饰性背景元素 -->
+      <div 
+        class="absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl opacity-30"
+        style={`background: ${primaryColor};`}
+      ></div>
+      <div 
+        class="absolute bottom-0 left-0 w-64 h-64 rounded-full blur-3xl opacity-30"
+        style={`background: ${secondaryColor};`}
+      ></div>
+      
+      <div class="relative z-10">
+        <!-- 角色头像展示 -->
+        <div class="flex items-center justify-center gap-8 mb-8">
+          {memberDetails.map((member: { id: string; name: string; color: string; avatar?: string }, index: number) => (
+            <div class="flex flex-col items-center animate-fade-in" style={`animation-delay: ${index * 150}ms;`}>
+              <div 
+                class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 flex items-center justify-center text-4xl md:text-5xl font-bold text-white shadow-lg transition-transform hover:scale-110 overflow-hidden"
+                style={`border-color: ${member.color}; background-color: ${member.color}; box-shadow: 0 0 40px ${member.color}40;`}
+              >
+                {member.avatar ? (
+                  <img src={member.avatar} alt={member.name} class="w-full h-full object-cover" />
+                ) : (
+                  member.name.charAt(0)
+                )}
+              </div>
+              <span class="mt-3 font-semibold text-lg" style={`color: ${member.color};`}>
+                {member.name}
+              </span>
+            </div>
+          ))}
+        </div>
+        
+        <!-- 关系名称 -->
+        <h1 class="text-4xl md:text-5xl font-bold text-center mb-4">
+          <span 
+            class="bg-clip-text text-transparent"
+            style={`background-image: linear-gradient(135deg, ${primaryColor}, ${secondaryColor});`}
+          >
+            {relationship.data.name}
+          </span>
+        </h1>
+        
+        <!-- 关系类型标签 -->
+        <div class="flex justify-center gap-3 flex-wrap">
+          <span 
+            class="px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm"
+            style={`background: ${primaryColor}30; color: ${primaryColor};`}
+          >
+            {relationship.data.type === 'romantic' && '💕 恋人'}
+            {relationship.data.type === 'rivals' && '⚔️ 宿敌'}
+            {relationship.data.type === 'frenemies' && '🎭 亦敌亦友'}
+            {relationship.data.type === 'siblings' && '👨‍👩‍👧‍👦 手足'}
+            {relationship.data.type === 'mentor' && '📚 师徒'}
+            {relationship.data.type === 'complicated' && '❓ 复杂'}
+          </span>
+          <span 
+            class="px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm"
+            style={`background: ${secondaryColor}30; color: ${secondaryColor};`}
+          >
+            {relationship.data.nature === 'pure' && '💖 纯爱'}
+            {relationship.data.nature === 'twisted' && '💜 扭曲'}
+            {relationship.data.nature === 'utilize' && '🔗 利用'}
+            {relationship.data.nature === 'mutual' && '🤝 相互'}
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 重要元素/道具/信物区域 -->
+    {relationship.data.keepsakes && relationship.data.keepsakes.length > 0 && (
+      <section class="mb-12">
+        <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+          <span class="text-3xl">🎁</span> 重要元素与信物
+        </h2>
+        <div class="grid md:grid-cols-3 gap-4">
+          {relationship.data.keepsakes.map((item: { name: string; description: string; image?: string }, index: number) => (
+            <div 
+              class="editorial-card group cursor-pointer transition-all duration-500 hover:-translate-y-2"
+              style={`animation: fadeInUp 0.5s ease-out ${index * 100}ms both;`}
+            >
+              <div 
+                class="w-16 h-16 rounded-xl mb-4 flex items-center justify-center text-3xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
+                style={`background: linear-gradient(135deg, ${primaryColor}30, ${secondaryColor}30);`}
+              >
+                {item.image ? (
+                  <img src={item.image} alt={item.name} class="w-12 h-12 object-contain" />
+                ) : (
+                  '✨'
+                )}
+              </div>
+              <h3 
+                class="font-bold text-lg mb-2 bg-clip-text text-transparent"
+                style={`background-image: linear-gradient(135deg, ${primaryColor}, ${secondaryColor});`}
+              >
+                {item.name}
+              </h3>
+              <p class="text-[var(--color-muted)] text-sm leading-relaxed">
+                {item.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- 相关剧情配图区域 -->
+    {relationship.data.storyImages && relationship.data.storyImages.length > 0 && (
+      <section class="mb-12">
+        <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+          <span class="text-3xl">🖼️</span> 关系剧情回顾
+        </h2>
+        <div class="grid md:grid-cols-2 gap-6">
+          {relationship.data.storyImages.map((img: { src: string; caption: string; chapter?: number }, index: number) => (
+            <div 
+              class="relative group rounded-xl overflow-hidden aspect-video bg-[var(--color-card)] cursor-pointer"
+              style={`animation: fadeInUp 0.5s ease-out ${index * 150}ms both;`}
+            >
+              <!-- 占位图 -->
+              <div 
+                class="absolute inset-0 flex items-center justify-center"
+                style={`background: linear-gradient(135deg, ${primaryColor}20, ${secondaryColor}20);`}
+              >
+                <div class="text-center p-6">
+                  <div class="text-6xl mb-4 opacity-50 transition-transform duration-300 group-hover:scale-110">🖼️</div>
+                  <p class="text-[var(--color-muted)] text-sm">图片占位</p>
+                </div>
+              </div>
+              <!-- 实际图片（如果存在） -->
+              <img 
+                src={img.src} 
+                alt={img.caption} 
+                class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                onerror="this.style.display='none'"
+              />
+              <!-- 遮罩和说明 -->
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+                  <p class="font-medium">{img.caption}</p>
+                  {img.chapter && (
+                    <p class="text-sm opacity-80 mt-1">第 {img.chapter} 章</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- 标签展示 -->
+    {relationship.data.tags && (
+      <section class="mb-12">
+        <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+          <span class="text-3xl">🏷️</span> 关系标签
+        </h2>
+        <TagList tags={relationship.data.tags} client:load />
+      </section>
+    )}
+
+    <!-- 正文内容 -->
+    <section class="prose dark:prose-invert max-w-none">
+      <Content />
+    </section>
+
+    <!-- 返回按钮 -->
+    <div class="mt-12 text-center">
+      <a 
+        href="/relationships"
+        class="inline-flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 hover:scale-105"
+        style={`background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}); color: white;`}
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        返回关系列表
+      </a>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fadeInUp 0.6s ease-out both;
+  }
+</style>

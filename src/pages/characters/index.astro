@@ -11,7 +11,9 @@ const characters = await getCollection('characters');
 <BaseLayout title="角色档案 | Kind-Black-Cat">
   <section class="max-w-7xl mx-auto px-6 py-12">
     <div class="text-center mb-12">
-      <h1 class="text-4xl font-bold mb-4"> 角色档案</h1>
+      <h1 class="text-4xl font-bold mb-4 flex items-center justify-center gap-3">
+        <span class="text-5xl">👥</span> 角色档案
+      </h1>
       <p class="text-xl text-[var(--color-muted)]">
         深入了解每一个角色的性格特点与属性分布
       </p>
@@ -28,42 +30,103 @@ const characters = await getCollection('characters');
       </div>
     ) : (
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {characters.map((character) => (
+        {characters.map((character, index) => (
           <a 
             href={`/characters/${idToSlug(character.id)}`}
-            class="editorial-card group block"
-            style={`border-top: 4px solid ${character.data.color}`}
+            class="group block rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
+            style={`animation: fadeInUp 0.5s ease-out ${index * 100}ms both;`}
           >
-            <div class="flex items-center gap-4 mb-4">
-              <div 
-                class="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white"
-                style={`background-color: ${character.data.color}`}
-              >
-                {character.data.name.charAt(0)}
+            <!-- 渐变顶部装饰 -->
+            <div 
+              class="h-2 transition-all duration-300 group-hover:h-3"
+              style={`background: linear-gradient(90deg, ${character.data.color}, ${character.data.color}80);`}
+            ></div>
+            
+            <div class="editorial-card rounded-t-none border-t-0">
+              <div class="flex items-center gap-4 mb-4">
+                <!-- 头像区域（带占位符） -->
+                <div class="relative">
+                  <div 
+                    class="w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-lg transition-all duration-300 group-hover:scale-110 overflow-hidden"
+                    style={`background-color: ${character.data.color}; box-shadow: 0 0 30px ${character.data.color}40;`}
+                  >
+                    {character.data.avatar ? (
+                      <img 
+                        src={character.data.avatar} 
+                        alt={character.data.name}
+                        class="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span class="select-none">{character.data.name.charAt(0)}</span>
+                    )}
+                  </div>
+                  <!-- 角色类型徽章 -->
+                  <div 
+                    class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center text-xs bg-[var(--color-card)] border-2 shadow-sm"
+                    style={`border-color: ${character.data.color};`}
+                  >
+                    {character.data.role === 'protagonist' && '🌟'}
+                    {character.data.role === 'love_interest' && '💕'}
+                    {character.data.role === 'supporting' && '👤'}
+                    {character.data.role === 'antagonist' && '🎭'}
+                  </div>
+                </div>
+                
+                <div class="flex-1">
+                  <h2 
+                    class="text-xl font-semibold transition-colors duration-300"
+                    style={`color: ${character.data.color};`}
+                  >
+                    {character.data.name}
+                  </h2>
+                  <span class="text-sm text-[var(--color-muted)]">
+                    {character.data.role === 'protagonist' && '主角'}
+                    {character.data.role === 'love_interest' && '攻'}
+                    {character.data.role === 'supporting' && '配角'}
+                    {character.data.role === 'antagonist' && '反派'}
+                  </span>
+                </div>
               </div>
-              <div>
-                <h2 class="text-xl font-semibold group-hover:text-[var(--color-primary)] transition-colors">
-                  {character.data.name}
-                </h2>
-                <span class="text-sm text-[var(--color-muted)]">
-                  {character.data.role === 'protagonist' && '主角'}
-                  {character.data.role === 'love_interest' && '攻'}
-                  {character.data.role === 'supporting' && '配角'}
-                  {character.data.role === 'antagonist' && '反派'}
+              
+              <p class="text-[var(--color-muted)] mb-4 line-clamp-2 leading-relaxed">
+                {character.data.description}
+              </p>
+              
+              {character.data.tags && (
+                <div class="mb-4">
+                  <TagList tags={character.data.tags.slice(0, 3)} size="sm" client:load />
+                </div>
+              )}
+              
+              <!-- 查看详情提示 -->
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-[var(--color-muted)] group-hover:text-[var(--color-primary)] transition-colors">
+                  点击查看详情
                 </span>
+                <svg 
+                  class="w-5 h-5 text-[var(--color-muted)] group-hover:text-[var(--color-primary)] transition-all duration-300 group-hover:translate-x-1" 
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
               </div>
             </div>
-            
-            <p class="text-[var(--color-muted)] mb-4 line-clamp-2">
-              {character.data.description}
-            </p>
-            
-            {character.data.tags && (
-              <TagList tags={character.data.tags.slice(0, 3)} size="sm" client:load />
-            )}
           </a>
         ))}
       </div>
     )}
   </section>
 </BaseLayout>
+
+<style>
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

@@ -8,6 +8,7 @@ const characters = defineCollection({
     alias: z.array(z.string()).optional(), // 别名/昵称
     color: z.string(), // 代表色 (hex)
     avatar: z.string().optional(), // 头像路径
+    portrait: z.string().optional(), // 角色立绘路径
     role: z.enum(['protagonist', 'love_interest', 'supporting', 'antagonist']),
     description: z.string(),
     // 属性雷达图数据
@@ -59,6 +60,11 @@ const relationships = defineCollection({
       'mentor',       // 师徒
       'complicated',  // 复杂
     ]),
+    // 代表配色
+    colors: z.object({
+      primary: z.string(),   // 主色
+      secondary: z.string(), // 辅色
+    }).optional(),
     // 情感基调数值
     vibeScore: z.number().min(0).max(100), // 甜蜜指数
     angstScore: z.number().min(0).max(100), // 虐心指数
@@ -78,6 +84,18 @@ const relationships = defineCollection({
       chapter: reference('chapters'),
       description: z.string(),
       impact: z.enum(['positive', 'negative', 'neutral']),
+    })).optional(),
+    // 重要元素/道具/信物
+    keepsakes: z.array(z.object({
+      name: z.string(),
+      description: z.string(),
+      image: z.string().optional(),
+    })).optional(),
+    // 关系相关剧情配图
+    storyImages: z.array(z.object({
+      src: z.string(),
+      caption: z.string(),
+      chapter: z.number().optional(),
     })).optional(),
     // 标签
     tags: z.array(z.string()).optional(),
