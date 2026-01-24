@@ -1,13 +1,31 @@
 ---
 import '../styles/global.css';
+import { RandomBackground } from '../components/RandomBackground';
 
 interface Props {
   title: string;
   description?: string;
   themeColor?: string;
+  // 固定背景图片（用于角色详情页等特殊页面）
+  fixedBackground?: string;
+  // 背景透明度
+  backgroundOpacity?: number;
 }
 
-const { title, description = 'Kind-Black-Cat', themeColor } = Astro.props;
+const { 
+  title, 
+  description = 'Kind-Black-Cat', 
+  themeColor,
+  fixedBackground,
+  backgroundOpacity = 0.12
+} = Astro.props;
+
+// 背景图片列表
+const backgroundImages = [
+  '/images/backgrounds/bg-1.jpg',
+  '/images/backgrounds/bg-2.jpg',
+  '/images/backgrounds/bg-3.jpg',
+];
 ---
 
 <!doctype html>
@@ -34,7 +52,15 @@ const { title, description = 'Kind-Black-Cat', themeColor } = Astro.props;
       </style>
     )}
   </head>
-  <body class="min-h-screen">
+  <body class="min-h-screen relative">
+    <!-- 全局背景图片 -->
+    <RandomBackground 
+      images={backgroundImages}
+      fixedImage={fixedBackground}
+      opacity={backgroundOpacity}
+      client:load
+    />
+    
     <header class="sticky top-0 z-50 bg-[var(--color-background)]/80 backdrop-blur-md border-b border-[var(--color-border)]">
       <nav class="max-w-7xl mx-auto px-6 py-4">
         <div class="flex items-center justify-between">
@@ -46,6 +72,7 @@ const { title, description = 'Kind-Black-Cat', themeColor } = Astro.props;
             <a href="/relationships" class="hover:text-[var(--color-primary)] transition-colors">关系</a>
             <a href="/clues" class="hover:text-[var(--color-primary)] transition-colors">伏笔墙</a>
             <a href="/quotes" class="hover:text-[var(--color-primary)] transition-colors">金句</a>
+            <a href="/gallery" class="hover:text-[var(--color-primary)] transition-colors">图集</a>
             <a href="/extras" class="hover:text-[var(--color-primary)] transition-colors">随笔</a>
             <button
               id="theme-toggle"

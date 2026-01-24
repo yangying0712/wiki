@@ -1,0 +1,194 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { TagList } from '../../components/ScopedTag';
+import { idToSlug } from '../../utils/content';
+
+// 获取所有图片集
+const galleries = await getCollection('gallery');
+
+// 按类型分组
+const doujinshiItems = galleries.filter(g => g.data.category === 'doujinshi');
+const modelItems = galleries.filter(g => g.data.category === 'model');
+
+// 获取所有本子翻译的子分类
+const doujinshiSubCategories = [...new Set(doujinshiItems.map(g => g.data.subCategory).filter(Boolean))];
+---
+
+<BaseLayout title="图片集 | Kind-Black-Cat">
+  <section class="max-w-7xl mx-auto px-6 py-12">
+    <div class="text-center mb-12">
+      <h1 class="text-4xl font-bold mb-4 flex items-center justify-center gap-3">
+        <span class="text-5xl">🖼️</span> 图片集
+      </h1>
+      <p class="text-xl text-[var(--color-muted)]">
+        本子翻译与模型截图收藏
+      </p>
+    </div>
+
+    <!-- 分类选项卡 -->
+    <div class="flex justify-center gap-4 mb-8">
+      <a 
+        href="#doujinshi" 
+        class="px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-lg font-medium hover:from-pink-600 hover:to-rose-600 transition-all duration-300 hover:scale-105 flex items-center gap-2"
+      >
+        <span>📚</span> 本子翻译
+        <span class="bg-white/20 px-2 py-0.5 rounded-full text-sm">{doujinshiItems.length}</span>
+      </a>
+      <a 
+        href="#models" 
+        class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg font-medium hover:from-cyan-600 hover:to-blue-600 transition-all duration-300 hover:scale-105 flex items-center gap-2"
+      >
+        <span>🎨</span> 模型截图
+        <span class="bg-white/20 px-2 py-0.5 rounded-full text-sm">{modelItems.length}</span>
+      </a>
+    </div>
+
+    <!-- 本子翻译区域 -->
+    <section id="doujinshi" class="mb-16">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="text-3xl">📚</span>
+        <h2 class="text-2xl font-bold">本子翻译</h2>
+        {doujinshiSubCategories.length > 0 && (
+          <div class="flex gap-2 ml-4">
+            {doujinshiSubCategories.map(cat => (
+              <span class="px-3 py-1 bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400 rounded-full text-sm">
+                {cat}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {doujinshiItems.length === 0 ? (
+        <div class="text-center py-12 editorial-card">
+          <p class="text-[var(--color-muted)] text-lg">
+            暂无本子翻译内容。请在 <code class="bg-[var(--color-card)] px-2 py-1 rounded">src/content/gallery/</code> 目录下添加内容。
+          </p>
+        </div>
+      ) : (
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {doujinshiItems.map((item, index) => (
+            <a 
+              href={`/gallery/${idToSlug(item.id)}`}
+              class="group block rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl editorial-card p-0"
+              style={`animation: fadeInUp 0.5s ease-out ${index * 100}ms both;`}
+            >
+              <!-- 封面图 -->
+              <div class="aspect-[3/4] bg-gradient-to-br from-pink-100 to-rose-100 dark:from-pink-900/20 dark:to-rose-900/20 relative overflow-hidden">
+                {item.data.coverImage ? (
+                  <img 
+                    src={item.data.coverImage} 
+                    alt={item.data.title}
+                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                ) : (
+                  <div class="w-full h-full flex items-center justify-center text-6xl">📚</div>
+                )}
+                {item.data.isNSFW && (
+                  <div class="absolute top-2 right-2 px-2 py-1 bg-red-500 text-white text-xs rounded-full">
+                    🔞 NSFW
+                  </div>
+                )}
+                {item.data.subCategory && (
+                  <div class="absolute bottom-2 left-2 px-2 py-1 bg-black/50 text-white text-xs rounded-full backdrop-blur-sm">
+                    {item.data.subCategory}
+                  </div>
+                )}
+              </div>
+              
+              <div class="p-4">
+                <h3 class="font-semibold text-lg group-hover:text-pink-500 transition-colors line-clamp-1">
+                  {item.data.title}
+                </h3>
+                <p class="text-sm text-[var(--color-muted)] mt-1 line-clamp-2">
+                  {item.data.description}
+                </p>
+                {item.data.originalWork && (
+                  <p class="text-xs text-[var(--color-muted)] mt-2">
+                    原作: {item.data.originalWork.title}
+                    {item.data.originalWork.author && ` by ${item.data.originalWork.author}`}
+                  </p>
+                )}
+                <div class="flex items-center justify-between mt-3 text-xs text-[var(--color-muted)]">
+                  <span>{item.data.images.length} 张图片</span>
+                  <span>{item.data.publishedAt.toLocaleDateString('zh-CN')}</span>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+    </section>
+
+    <!-- 模型截图区域 -->
+    <section id="models">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="text-3xl">🎨</span>
+        <h2 class="text-2xl font-bold">模型记录及截图集</h2>
+      </div>
+
+      {modelItems.length === 0 ? (
+        <div class="text-center py-12 editorial-card">
+          <p class="text-[var(--color-muted)] text-lg">
+            暂无模型截图内容。请在 <code class="bg-[var(--color-card)] px-2 py-1 rounded">src/content/gallery/</code> 目录下添加内容。
+          </p>
+        </div>
+      ) : (
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {modelItems.map((item, index) => (
+            <a 
+              href={`/gallery/${idToSlug(item.id)}`}
+              class="group block rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl editorial-card p-0"
+              style={`animation: fadeInUp 0.5s ease-out ${index * 100}ms both;`}
+            >
+              <!-- 封面图 -->
+              <div class="aspect-video bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-900/20 dark:to-blue-900/20 relative overflow-hidden">
+                {item.data.coverImage ? (
+                  <img 
+                    src={item.data.coverImage} 
+                    alt={item.data.title}
+                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                ) : (
+                  <div class="w-full h-full flex items-center justify-center text-6xl">🎨</div>
+                )}
+              </div>
+              
+              <div class="p-4">
+                <h3 class="font-semibold text-lg group-hover:text-cyan-500 transition-colors line-clamp-1">
+                  {item.data.title}
+                </h3>
+                <p class="text-sm text-[var(--color-muted)] mt-1 line-clamp-2">
+                  {item.data.description}
+                </p>
+                {item.data.tags && (
+                  <div class="mt-3">
+                    <TagList tags={item.data.tags.slice(0, 3)} size="sm" client:load />
+                  </div>
+                )}
+                <div class="flex items-center justify-between mt-3 text-xs text-[var(--color-muted)]">
+                  <span>{item.data.images.length} 张图片</span>
+                  <span>{item.data.publishedAt.toLocaleDateString('zh-CN')}</span>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+    </section>
+  </section>
+</BaseLayout>
+
+<style>
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

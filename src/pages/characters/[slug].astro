@@ -18,7 +18,12 @@ const { character } = Astro.props;
 const { Content } = await character.render();
 ---
 
-<BaseLayout title={`${character.data.name} | 角色档案`} themeColor={character.data.color}>
+<BaseLayout 
+  title={`${character.data.name} | 角色档案`} 
+  themeColor={character.data.color}
+  fixedBackground={character.data.portrait}
+  backgroundOpacity={0.08}
+>
   <article class="max-w-5xl mx-auto px-6 py-12">
     <!-- 头部信息 - 带立绘区域 -->
     <header class="mb-12">

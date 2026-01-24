@@ -129,7 +129,18 @@ const extras = defineCollection({
   type: 'content',
   schema: z.object({
     title: z.string(),
-    type: z.enum(['essay', 'analysis', 'fanfic', 'meta', 'review']),
+    // 扩展类型：原有类型 + 新增4种细分类型
+    type: z.enum([
+      'essay',           // 随笔
+      'analysis',        // 分析
+      'fanfic',          // 同人
+      'meta',            // Meta
+      'review',          // 书评
+      'plot_analysis',   // 个人剧情/CP情感分析
+      'korean_trans',    // 韩网翻译
+      'brain_hole',      // 小段子脑洞记录
+      'dark_zone',       // 鹿压抑专区（阴间泥塑嬷预警）
+    ]),
     description: z.string(),
     publishedAt: z.date(),
     // 主题角色 (用于动态主题色)
@@ -138,6 +149,44 @@ const extras = defineCollection({
     tags: z.array(z.string()).optional(),
     // 是否剧透
     containsSpoilers: z.boolean().default(false),
+    // 是否包含敏感内容（用于鹿压抑专区）
+    sensitiveContent: z.boolean().default(false),
+  }),
+});
+
+// 图片集合 - 本子翻译和模型截图
+const gallery = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    // 图集类型
+    category: z.enum([
+      'doujinshi',  // 本子翻译
+      'model',      // 模型记录及截图集
+    ]),
+    // 子分类（用于本子翻译的具体漫画分类）
+    subCategory: z.string().optional(),
+    description: z.string(),
+    // 封面图片
+    coverImage: z.string(),
+    // 图片列表
+    images: z.array(z.object({
+      src: z.string(),
+      caption: z.string().optional(),
+      page: z.number().optional(), // 用于本子翻译的页码
+    })),
+    // 发布日期
+    publishedAt: z.date(),
+    // 标签
+    tags: z.array(z.string()).optional(),
+    // 原作信息（用于本子翻译）
+    originalWork: z.object({
+      title: z.string(),
+      author: z.string().optional(),
+      source: z.string().optional(),
+    }).optional(),
+    // 是否NSFW
+    isNSFW: z.boolean().default(false),
   }),
 });
 
@@ -165,4 +214,5 @@ export const collections = {
   clues,
   extras,
   quotes,
+  gallery,
 };
