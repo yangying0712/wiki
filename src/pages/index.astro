@@ -1,20 +1,28 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { RadarCompare } from '../components/AttributeRadar';
+import { ImageCarousel } from '../components/ImageCarousel';
 import { StockTickerList } from '../components/StockTickerItem';
 import { TagList } from '../components/ScopedTag';
 
-// 崔要员×金率音 CP数据 - 蓝红配色
-const sampleCharacters = [
+// 轮播图数据 - 占位图
+const carouselImages = [
   {
-    name: '崔要员',
-    color: '#2563eb', // 蓝色 - 公位
-    attributes: { intelligence: 85, strength: 88, charm: 92, loyalty: 95, cunning: 80, emotional: 70 },
+    src: '/images/carousel-1.jpg',
+    alt: '关系羁绊',
+    title: '探索角色羁绊',
+    description: '深入了解每一段关系背后的故事与情感',
   },
   {
-    name: '金率音',
-    color: '#dc2626', // 红色 - 受位
-    attributes: { intelligence: 90, strength: 65, charm: 75, loyalty: 88, cunning: 85, emotional: 80 },
+    src: '/images/carousel-2.jpg',
+    alt: '精彩剧情',
+    title: '追踪剧情发展',
+    description: '记录每一个令人心动的名场面',
+  },
+  {
+    src: '/images/carousel-3.jpg',
+    alt: '角色档案',
+    title: '完整角色档案',
+    description: '性格、属性、情感历程，一应俱全',
   },
 ];
 
@@ -46,13 +54,13 @@ const sampleTags = [
 ---
 
 <BaseLayout title="首页 | Kind-Black-Cat">
-  <!-- Hero Section -->
+  <!-- Hero Section with Carousel -->
   <section class="relative overflow-hidden">
-    <div class="max-w-7xl mx-auto px-6 py-20">
+    <div class="max-w-7xl mx-auto px-6 py-8">
       <div class="grid lg:grid-cols-2 gap-12 items-center">
-        <div>
+        <div class="animate-fade-in-left">
           <h1 class="text-5xl lg:text-6xl font-bold leading-tight mb-6">
-            <span class="text-gradient bg-gradient-to-r from-blue-600 via-purple-500 to-red-600">
+            <span class="text-gradient bg-gradient-to-r from-blue-600 via-purple-500 to-red-600 animate-gradient">
               Kind-Black-Cat
             </span>
             <br />
@@ -60,25 +68,38 @@ const sampleTags = [
           </h1>
           <p class="text-xl text-[var(--color-muted)] mb-8 leading-relaxed">
             记录个人角色关系、剧情伏笔、情感走势理解，堆放随笔和本子翻译。
+          </p>
           <div class="flex flex-wrap gap-4">
             <a
               href="/characters"
-              class="px-6 py-3 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors"
+              class="group px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg font-medium hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 hover:scale-105 hover:shadow-lg"
             >
-              探索角色
+              <span class="flex items-center gap-2">
+                探索角色
+                <svg class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </span>
             </a>
             <a
               href="/relationships"
-              class="px-6 py-3 border border-[var(--color-border)] rounded-lg font-medium hover:bg-[var(--color-card)] transition-colors"
+              class="group px-6 py-3 border border-[var(--color-border)] rounded-lg font-medium hover:bg-[var(--color-card)] transition-all duration-300 hover:scale-105"
             >
-              查看关系图
+              <span class="flex items-center gap-2">
+                查看关系图
+                <svg class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </span>
             </a>
           </div>
         </div>
         
         <!-- 标签展示 -->
-        <div class="editorial-card">
-          <h3 class="text-lg font-semibold mb-4">分面标签系统</h3>
+        <div class="editorial-card animate-fade-in-right hover:shadow-xl transition-shadow duration-300">
+          <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+            <span class="text-2xl">🏷️</span> 分面标签系统
+          </h3>
           <TagList tags={sampleTags} client:load />
           <p class="text-sm text-[var(--color-muted)] mt-4">
             类似 AO3 的分面标签，支持按套路、氛围、状态等维度筛选内容。（待实现）
@@ -88,153 +109,81 @@ const sampleTags = [
     </div>
   </section>
 
+  <!-- 图片轮播区 -->
+  <section class="py-12">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold flex items-center justify-center gap-3">
+          <span class="text-4xl animate-bounce-slow">✨</span>
+          精彩瞬间
+          <span class="text-4xl animate-bounce-slow animation-delay-500">✨</span>
+        </h2>
+        <p class="text-[var(--color-muted)] mt-2">回顾那些令人心动的名场面</p>
+      </div>
+      <ImageCarousel images={carouselImages} client:load />
+    </div>
+  </section>
+
   <!-- 股市行情区 -->
   <section class="py-16 bg-[var(--color-card)]">
     <div class="max-w-7xl mx-auto px-6">
       <div class="flex items-center justify-between mb-8">
         <div>
-          <h2 class="text-3xl font-bold">📈 CP 股市（仅供娱乐）</h2>
+          <h2 class="text-3xl font-bold flex items-center gap-2">
+            <span class="animate-pulse">📈</span> CP 股市（仅供娱乐）
+          </h2>
           <p class="text-[var(--color-muted)] mt-2">回合制端水，现在是谁的回合？</p>
         </div>
-        <a href="/relationships" class="text-indigo-500 hover:underline">
-          查看完整行情 →
+        <a href="/relationships" class="text-indigo-500 hover:underline flex items-center gap-1 group">
+          查看完整行情 
+          <span class="transition-transform duration-300 group-hover:translate-x-1">→</span>
         </a>
       </div>
       <StockTickerList items={sampleStockData} client:load />
     </div>
   </section>
 
-  <!-- 雷达图对比区 -->
+  <!-- 功能模块网格 -->
   <section class="py-16">
     <div class="max-w-7xl mx-auto px-6">
-      <div class="text-center mb-12">
-        <h2 class="text-3xl font-bold">⬡ 六边形战士对比</h2>
-        <p class="text-[var(--color-muted)] mt-2">
-          多维度对比，你也要论战力？
-        </p>
-      </div>
-      <div class="editorial-card max-w-4xl mx-auto">
-        <RadarCompare characters={sampleCharacters} client:load />
-      </div>
-    </div>
-  </section>
-
-  <!-- 功能模块网格 -->
-  <section class="py-16 bg-[var(--color-card)]">
-    <div class="max-w-7xl mx-auto px-6">
-      <h2 class="text-3xl font-bold text-center mb-12">核心功能</h2>
+      <h2 class="text-3xl font-bold text-center mb-12 flex items-center justify-center gap-3">
+        <span class="text-4xl">🚀</span> 核心功能
+      </h2>
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-<a href="/characters" class="editorial-card group">
-  <div class="mb-4 flex items-center justify-start">
-    <svg class="w-16 h-16 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="glass-gradient-icon" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.35"/>
-          <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.05"/>
-        </linearGradient>
-        <filter id="soft-shadow-icon" x="-50%" y="-50%" width="200%" height="200%">
-          <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.15"/>
-        </filter>
-        <linearGradient id="border-gradient-icon" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8"/>
-          <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.2"/>
-        </linearGradient>
-      </defs>
-
-      <g transform="rotate(-6 32 32)">
-        <rect x="14" y="10" width="36" height="48" rx="6" 
-              fill="url(#glass-gradient-icon)" 
-              stroke="url(#border-gradient-icon)" 
-              stroke-width="1"/>
-      </g>
-
-      <rect x="14" y="10" width="36" height="48" rx="6" 
-            fill="url(#glass-gradient-icon)" 
-            stroke="url(#border-gradient-icon)" 
-            stroke-width="1.5" 
-            filter="url(#soft-shadow-icon)"/>
-
-      <g opacity="0.9">
-        <circle cx="32" cy="28" r="7" fill="#FFFFFF"/>
-        <path d="M19 50V46C19 41.5817 22.5817 38 27 38H37C41.4183 38 45 41.5817 45 46V50" 
-              stroke="#FFFFFF" 
-              stroke-width="2.5" 
-              stroke-linecap="round"/>
-      </g>
-      
-      <circle cx="44" cy="16" r="1.5" fill="#FFFFFF" fill-opacity="0.6"/>
-    </svg>
-  </div>
-
-  <h3 class="text-xl font-semibold mb-2 group-hover:text-indigo-500 transition-colors">
-    角色档案
-  </h3>
-  <p class="text-[var(--color-muted)]">
-    详细的角色资料库，包含属性雷达图、情感历程、关联关系等。
-  </p>
-</a>
+        <a href="/characters" class="editorial-card group block hover:scale-[1.02] transition-all duration-300">
+          <div class="mb-4 flex items-center justify-start">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center text-4xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+              👤
+            </div>
+          </div>
+          <h3 class="text-xl font-semibold mb-2 group-hover:text-indigo-500 transition-colors">
+            角色档案
+          </h3>
+          <p class="text-[var(--color-muted)]">
+            详细的角色资料库，包含属性雷达图、情感历程、关联关系等。
+          </p>
+        </a>
         
-<a href="/relationships" class="editorial-card group">
-  <div class="mb-4 flex items-center justify-start">
-    <svg class="w-16 h-16 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="pink-glass-fill" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#FFE4E6" stop-opacity="0.7"/> <stop offset="100%" stop-color="#FFF0F5" stop-opacity="0.3"/> </linearGradient>
+        <a href="/relationships" class="editorial-card group block hover:scale-[1.02] transition-all duration-300">
+          <div class="mb-4 flex items-center justify-start">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-500/20 to-red-500/20 flex items-center justify-center text-4xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+              💕
+            </div>
+          </div>
+          <h3 class="text-xl font-semibold mb-2 group-hover:text-indigo-500 transition-colors">
+            关系图谱
+          </h3>
+          <p class="text-[var(--color-muted)]">
+            可视化关系网络，探索角色之间的羁绊与情感故事。
+          </p>
+        </a>
         
-        <linearGradient id="strong-highlight-border" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#FFFFFF" stop-opacity="1"/>
-          <stop offset="100%" stop-color="#FFDEE9" stop-opacity="0.5"/>
-        </linearGradient>
-        
-        <filter id="defined-shadow-pink" x="-50%" y="-50%" width="200%" height="200%">
-          <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#4A0E2E" flood-opacity="0.25"/>
-        </filter>
-
-        <linearGradient id="inner-petal-accent" x1="0" y1="0" x2="1" y2="1">
-           <stop offset="0%" stop-color="#F472B6" stop-opacity="0.2"/>
-           <stop offset="100%" stop-color="#F472B6" stop-opacity="0.05"/>
-        </linearGradient>
-      </defs>
-
-      <g filter="url(#defined-shadow-pink)">
-        <path d="M32 12 C 42 12, 50 20, 50 30 C 50 42, 40 52, 32 52 C 24 52, 14 42, 14 30 C 14 20, 22 12, 32 12 Z" 
-              fill="url(#pink-glass-fill)" 
-              stroke="url(#strong-highlight-border)" 
-              stroke-width="1.5"/>
-        
-        <g opacity="0.95">
-            <path d="M32 50 C 22 50, 16 40, 18 30 C 20 20, 30 16, 38 22" 
-                  fill="url(#pink-glass-fill)" 
-                  stroke="url(#strong-highlight-border)" 
-                  stroke-width="1.5" stroke-linecap="round"/>
-            <path d="M32 14 C 42 14, 48 24, 46 34 C 44 44, 34 48, 26 42" 
-                  fill="url(#pink-glass-fill)" 
-                  stroke="url(#strong-highlight-border)" 
-                  stroke-width="1.5" stroke-linecap="round"/>
-        </g>
-
-        <g>
-            <circle cx="32" cy="32" r="10" fill="url(#pink-glass-fill)" stroke="url(#strong-highlight-border)" stroke-width="1.5"/>
-            <circle cx="32" cy="32" r="7" fill="url(#inner-petal-accent)"/>
-            <path d="M32 28 C 34 28, 36 30, 36 32 C 36 35, 33 36, 31 35 C 29 34, 29 30, 32 29" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/>
-        </g>
-      </g>
-      
-      <circle cx="24" cy="20" r="2" fill="#FFFFFF" fill-opacity="0.9" filter="url(#defined-shadow-pink)"/>
-      <circle cx="44" cy="46" r="1.5" fill="#FFFFFF" fill-opacity="0.7"/>
-    </svg>
-  </div>
-
-  <h3 class="text-xl font-semibold mb-2 group-hover:text-indigo-500 transition-colors">
-    关系图谱
-  </h3>
-  <p class="text-[var(--color-muted)]">
-    可视化关系网络，连线粗细表情感浓度，颜色表关系性质。
-  </p>
-</a>
-        
-        <a href="/clues" class="editorial-card group">
-          <div class="text-4xl mb-4">🔍</div>
+        <a href="/clues" class="editorial-card group block hover:scale-[1.02] transition-all duration-300">
+          <div class="mb-4 flex items-center justify-start">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center text-4xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+              🔍
+            </div>
+          </div>
           <h3 class="text-xl font-semibold mb-2 group-hover:text-indigo-500 transition-colors">
             伏笔追踪
           </h3>
@@ -243,8 +192,12 @@ const sampleTags = [
           </p>
         </a>
         
-        <a href="/extras" class="editorial-card group">
-          <div class="text-4xl mb-4">📝</div>
+        <a href="/extras" class="editorial-card group block hover:scale-[1.02] transition-all duration-300">
+          <div class="mb-4 flex items-center justify-start">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center text-4xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+              📝
+            </div>
+          </div>
           <h3 class="text-xl font-semibold mb-2 group-hover:text-indigo-500 transition-colors">
             随笔分析
           </h3>
@@ -253,8 +206,12 @@ const sampleTags = [
           </p>
         </a>
         
-        <a href="/quotes" class="editorial-card group">
-          <div class="text-4xl mb-4">💬</div>
+        <a href="/quotes" class="editorial-card group block hover:scale-[1.02] transition-all duration-300">
+          <div class="mb-4 flex items-center justify-start">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center text-4xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+              💬
+            </div>
+          </div>
           <h3 class="text-xl font-semibold mb-2 group-hover:text-indigo-500 transition-colors">
             金句记录
           </h3>
@@ -263,18 +220,12 @@ const sampleTags = [
           </p>
         </a>
         
-        <a href="/chapters" class="editorial-card group">
-          <div class="text-4xl mb-4">📖</div>
-          <h3 class="text-xl font-semibold mb-2 group-hover:text-indigo-500 transition-colors">
-            章节时间轴（未实现）
-          </h3>
-          <p class="text-[var(--color-muted)]">
-            以章节为锚点，串联所有相关内容与事件。
-          </p>
-        </a>
-        
-        <div class="editorial-card bg-gradient-to-br from-indigo-500/10 to-purple-500/10">
-          <div class="text-4xl mb-4">✨</div>
+        <div class="editorial-card bg-gradient-to-br from-indigo-500/10 to-purple-500/10 hover:scale-[1.02] transition-all duration-300">
+          <div class="mb-4 flex items-center justify-start">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center text-4xl animate-pulse">
+              ✨
+            </div>
+          </div>
           <h3 class="text-xl font-semibold mb-2">
             更多功能
           </h3>
@@ -286,3 +237,67 @@ const sampleTags = [
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  @keyframes fadeInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes fadeInRight {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes gradient {
+    0%, 100% {
+      background-size: 200% 200%;
+      background-position: left center;
+    }
+    50% {
+      background-size: 200% 200%;
+      background-position: right center;
+    }
+  }
+  
+  @keyframes bounceSlow {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+  
+  .animate-fade-in-left {
+    animation: fadeInLeft 0.8s ease-out both;
+  }
+  
+  .animate-fade-in-right {
+    animation: fadeInRight 0.8s ease-out 0.2s both;
+  }
+  
+  .animate-gradient {
+    animation: gradient 3s ease infinite;
+  }
+  
+  .animate-bounce-slow {
+    animation: bounceSlow 2s ease-in-out infinite;
+  }
+  
+  .animation-delay-500 {
+    animation-delay: 0.5s;
+  }
+</style>

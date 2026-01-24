@@ -19,49 +19,110 @@ const { Content } = await character.render();
 ---
 
 <BaseLayout title={`${character.data.name} | 角色档案`} themeColor={character.data.color}>
-  <article class="max-w-4xl mx-auto px-6 py-12">
-    <!-- 头部信息 -->
+  <article class="max-w-5xl mx-auto px-6 py-12">
+    <!-- 头部信息 - 带立绘区域 -->
     <header class="mb-12">
-      <div class="flex items-center gap-6 mb-6">
-        <div 
-          class="w-24 h-24 rounded-full flex items-center justify-center text-4xl font-bold text-white shadow-lg"
-          style={`background-color: ${character.data.color}; box-shadow: 0 0 30px ${character.data.color}40`}
-        >
-          {character.data.name.charAt(0)}
-        </div>
-        <div>
-          <h1 class="text-4xl font-bold" style={`color: ${character.data.color}`}>
-            {character.data.name}
-          </h1>
-          {character.data.alias && (
-            <p class="text-[var(--color-muted)] mt-1">
-              别名: {character.data.alias.join(' / ')}
-            </p>
-          )}
-          <span class="inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium bg-[var(--color-card)]">
-            {character.data.role === 'protagonist' && '主角'}
-            {character.data.role === 'love_interest' && '攻'}
-            {character.data.role === 'supporting' && '配角'}
-            {character.data.role === 'antagonist' && '反派'}
-          </span>
+      <div class="relative rounded-2xl overflow-hidden mb-8" style={`background: linear-gradient(135deg, ${character.data.color}15, ${character.data.color}05);`}>
+        <!-- 装饰性背景 -->
+        <div class="absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl opacity-20" style={`background: ${character.data.color};`}></div>
+        <div class="absolute bottom-0 left-0 w-48 h-48 rounded-full blur-3xl opacity-10" style={`background: ${character.data.color};`}></div>
+        
+        <div class="relative p-8 md:p-12">
+          <div class="flex flex-col md:flex-row items-center gap-8">
+            <!-- 头像/立绘区域 -->
+            <div class="flex-shrink-0">
+              {character.data.portrait ? (
+                <!-- 如果有立绘，显示立绘 -->
+                <div class="relative group">
+                  <div 
+                    class="w-48 h-64 md:w-56 md:h-80 rounded-2xl overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-105"
+                    style={`box-shadow: 0 20px 60px ${character.data.color}30;`}
+                  >
+                    <img 
+                      src={character.data.portrait} 
+                      alt={`${character.data.name} 立绘`}
+                      class="w-full h-full object-cover"
+                    />
+                  </div>
+                  <!-- 立绘装饰边框 -->
+                  <div 
+                    class="absolute -inset-1 rounded-2xl opacity-50 -z-10"
+                    style={`background: linear-gradient(135deg, ${character.data.color}, transparent);`}
+                  ></div>
+                </div>
+              ) : (
+                <!-- 如果没有立绘，显示大头像占位 -->
+                <div class="relative">
+                  <div 
+                    class="w-40 h-40 md:w-48 md:h-48 rounded-full flex items-center justify-center text-6xl md:text-7xl font-bold text-white shadow-2xl transition-all duration-500 hover:scale-105 overflow-hidden"
+                    style={`background: linear-gradient(135deg, ${character.data.color}, ${character.data.color}cc); box-shadow: 0 20px 60px ${character.data.color}40;`}
+                  >
+                    {character.data.avatar ? (
+                      <img 
+                        src={character.data.avatar} 
+                        alt={character.data.name}
+                        class="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span class="select-none drop-shadow-lg">{character.data.name.charAt(0)}</span>
+                    )}
+                  </div>
+                  <!-- 立绘占位提示 -->
+                  <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 bg-[var(--color-card)] border border-[var(--color-border)] rounded-full text-xs text-[var(--color-muted)] whitespace-nowrap">
+                    🖼️ 立绘占位
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <!-- 角色信息 -->
+            <div class="flex-1 text-center md:text-left">
+              <div class="flex items-center justify-center md:justify-start gap-3 mb-4">
+                <h1 
+                  class="text-4xl md:text-5xl font-bold"
+                  style={`color: ${character.data.color};`}
+                >
+                  {character.data.name}
+                </h1>
+                <span 
+                  class="px-4 py-2 rounded-full text-sm font-medium"
+                  style={`background: ${character.data.color}20; color: ${character.data.color};`}
+                >
+                  {character.data.role === 'protagonist' && '🌟 主角'}
+                  {character.data.role === 'love_interest' && '💕 攻'}
+                  {character.data.role === 'supporting' && '👤 配角'}
+                  {character.data.role === 'antagonist' && '🎭 反派'}
+                </span>
+              </div>
+              
+              {character.data.alias && (
+                <p class="text-[var(--color-muted)] mb-4 flex items-center justify-center md:justify-start gap-2">
+                  <span class="text-lg">✨</span>
+                  别名: {character.data.alias.join(' / ')}
+                </p>
+              )}
+              
+              <p class="text-xl text-[var(--color-muted)] leading-relaxed mb-6">
+                {character.data.description}
+              </p>
+              
+              {character.data.tags && (
+                <div>
+                  <TagList tags={character.data.tags} client:load />
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
-      
-      <p class="text-xl text-[var(--color-muted)] leading-relaxed">
-        {character.data.description}
-      </p>
-      
-      {character.data.tags && (
-        <div class="mt-6">
-          <TagList tags={character.data.tags} client:load />
-        </div>
-      )}
     </header>
 
     <!-- 属性雷达图 -->
     {character.data.attributes && (
-      <section class="editorial-card mb-8">
-        <h2 class="text-2xl font-bold mb-6">⬡ 属性分布</h2>
+      <section class="editorial-card mb-8 hover:shadow-xl transition-shadow duration-300">
+        <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+          <span class="text-3xl">⬡</span> 属性分布
+        </h2>
         <AttributeRadar 
           name={character.data.name}
           color={character.data.color}
@@ -73,8 +134,10 @@ const { Content } = await character.render();
 
     <!-- 股价历程 -->
     {character.data.emotionTimeline && character.data.emotionTimeline.length > 0 && (
-      <section class="editorial-card mb-8">
-        <h2 class="text-2xl font-bold mb-6">📈 股价历程</h2>
+      <section class="editorial-card mb-8 hover:shadow-xl transition-shadow duration-300">
+        <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+          <span class="text-3xl">📈</span> 股价历程
+        </h2>
         <EmotionChart 
           data={character.data.emotionTimeline}
           characterName={character.data.name}
@@ -88,5 +151,19 @@ const { Content } = await character.render();
     <section class="prose dark:prose-invert max-w-none">
       <Content />
     </section>
+    
+    <!-- 返回按钮 -->
+    <div class="mt-12 text-center">
+      <a 
+        href="/characters"
+        class="inline-flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 hover:scale-105 text-white"
+        style={`background: ${character.data.color};`}
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        返回角色列表
+      </a>
+    </div>
   </article>
 </BaseLayout>
