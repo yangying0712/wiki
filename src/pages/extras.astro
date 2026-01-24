@@ -142,12 +142,10 @@ const categoryGroups = [
   const categoryBtns = document.querySelectorAll('.category-btn');
   const extraItems = document.querySelectorAll('.extra-item');
   
-  let activeCategory = 'all';
-  
   // 初始化激活状态
   const allBtn = document.querySelector('[data-category="all"]');
   if (allBtn) {
-    allBtn.classList.add('bg-[var(--color-primary)]', 'text-white', 'border-[var(--color-primary)]');
+    allBtn.classList.add('active');
   }
   
   categoryBtns.forEach((btn) => {
@@ -155,21 +153,19 @@ const categoryGroups = [
       const category = btn.getAttribute('data-category');
       if (!category) return;
       
-      activeCategory = category;
-      
       // 更新按钮样式
       categoryBtns.forEach((b) => {
-        b.classList.remove('bg-[var(--color-primary)]', 'text-white', 'border-[var(--color-primary)]');
+        b.classList.remove('active');
       });
-      btn.classList.add('bg-[var(--color-primary)]', 'text-white', 'border-[var(--color-primary)]');
+      btn.classList.add('active');
       
       // 过滤列表项
       extraItems.forEach((item) => {
         const itemType = item.getAttribute('data-type');
         if (category === 'all' || itemType === category) {
-          (item as HTMLElement).style.display = 'block';
+          item.classList.remove('hidden');
         } else {
-          (item as HTMLElement).style.display = 'none';
+          item.classList.add('hidden');
         }
       });
     });
@@ -181,5 +177,9 @@ const categoryGroups = [
     background: var(--color-primary);
     color: white;
     border-color: var(--color-primary);
+  }
+  
+  .extra-item.hidden {
+    display: none;
   }
 </style>

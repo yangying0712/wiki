@@ -62,6 +62,15 @@ export const RandomBackground: React.FC<RandomBackgroundProps> = ({
       className="fixed inset-0 -z-10 pointer-events-none overflow-hidden"
       aria-hidden="true"
     >
+      {/* 使用 img 元素预加载和检测错误 */}
+      <img
+        src={displayImage}
+        alt=""
+        className="hidden"
+        onError={() => {
+          setHasError((prev) => ({ ...prev, [displayImage]: true }));
+        }}
+      />
       <div
         className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ${
           isTransitioning ? 'opacity-0' : 'opacity-100'
@@ -69,9 +78,6 @@ export const RandomBackground: React.FC<RandomBackgroundProps> = ({
         style={{
           backgroundImage: `url(${displayImage})`,
           opacity: isTransitioning ? 0 : opacity,
-        }}
-        onError={() => {
-          setHasError((prev) => ({ ...prev, [displayImage]: true }));
         }}
       />
       {/* 渐变遮罩，确保内容可读性 */}
