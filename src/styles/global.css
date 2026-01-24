@@ -133,6 +133,10 @@
     background-size: 200% 100%;
   }
   
+  .animate-gradient {
+    animation: gradient 3s ease infinite;
+  }
+  
   /* 动画延迟 */
   .animation-delay-100 { animation-delay: 100ms; }
   .animation-delay-200 { animation-delay: 200ms; }

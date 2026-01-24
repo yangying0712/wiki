@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 interface CarouselImage {
   src: string;
@@ -20,27 +20,47 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const animationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // 清除动画超时
+  const clearAnimationTimeout = useCallback(() => {
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+      animationTimeoutRef.current = null;
+    }
+  }, []);
+
+  // 设置动画状态
+  const startAnimation = useCallback(() => {
+    clearAnimationTimeout();
+    setIsAnimating(true);
+    animationTimeoutRef.current = setTimeout(() => {
+      setIsAnimating(false);
+    }, 500);
+  }, [clearAnimationTimeout]);
+
+  // 清理动画超时
+  useEffect(() => {
+    return () => clearAnimationTimeout();
+  }, [clearAnimationTimeout]);
 
   const goToNext = useCallback(() => {
     if (isAnimating) return;
-    setIsAnimating(true);
+    startAnimation();
     setCurrentIndex((prev) => (prev + 1) % images.length);
-    setTimeout(() => setIsAnimating(false), 500);
-  }, [images.length, isAnimating]);
+  }, [images.length, isAnimating, startAnimation]);
 
   const goToPrev = useCallback(() => {
     if (isAnimating) return;
-    setIsAnimating(true);
+    startAnimation();
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
-    setTimeout(() => setIsAnimating(false), 500);
-  }, [images.length, isAnimating]);
+  }, [images.length, isAnimating, startAnimation]);
 
   const goToSlide = useCallback((index: number) => {
     if (isAnimating || index === currentIndex) return;
-    setIsAnimating(true);
+    startAnimation();
     setCurrentIndex(index);
-    setTimeout(() => setIsAnimating(false), 500);
-  }, [currentIndex, isAnimating]);
+  }, [currentIndex, isAnimating, startAnimation]);
 
   useEffect(() => {
     if (images.length <= 1) return;

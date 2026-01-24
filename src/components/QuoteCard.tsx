@@ -10,6 +10,17 @@ interface QuoteCardProps {
   className?: string;
 }
 
+// 验证颜色是否为有效的十六进制颜色
+const isValidHexColor = (color: string): boolean => {
+  return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}|[A-Fa-f0-9]{8})$/.test(color);
+};
+
+// 获取安全的颜色值
+const getSafeColor = (color: string | undefined, fallback: string): string => {
+  if (!color) return fallback;
+  return isValidHexColor(color) ? color : fallback;
+};
+
 export const QuoteCard: React.FC<QuoteCardProps> = ({
   quote,
   speaker,
@@ -19,30 +30,34 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
   importance = 'normal',
   className = '',
 }) => {
+  // 验证并获取安全的颜色
+  const safeColor = getSafeColor(speakerColor, '#6366f1');
+  const hasValidColor = speakerColor && isValidHexColor(speakerColor);
+  
   // 根据重要性决定样式
   const importanceStyles = {
     iconic: {
-      borderGradient: speakerColor 
-        ? `linear-gradient(180deg, ${speakerColor}, ${speakerColor}50)` 
+      borderGradient: hasValidColor 
+        ? `linear-gradient(180deg, ${safeColor}, ${safeColor}50)` 
         : 'linear-gradient(180deg, #6366f1, #a855f7)',
-      bgGradient: speakerColor 
-        ? `linear-gradient(135deg, ${speakerColor}10, transparent)` 
+      bgGradient: hasValidColor 
+        ? `linear-gradient(135deg, ${safeColor}10, transparent)` 
         : 'linear-gradient(135deg, rgba(99, 102, 241, 0.1), transparent)',
-      glowColor: speakerColor || '#6366f1',
+      glowColor: safeColor,
     },
     memorable: {
-      borderGradient: speakerColor 
-        ? `linear-gradient(180deg, ${speakerColor}cc, ${speakerColor}40)` 
+      borderGradient: hasValidColor 
+        ? `linear-gradient(180deg, ${safeColor}cc, ${safeColor}40)` 
         : 'linear-gradient(180deg, #a855f7cc, #a855f740)',
-      bgGradient: speakerColor 
-        ? `linear-gradient(135deg, ${speakerColor}08, transparent)` 
+      bgGradient: hasValidColor 
+        ? `linear-gradient(135deg, ${safeColor}08, transparent)` 
         : 'linear-gradient(135deg, rgba(168, 85, 247, 0.08), transparent)',
-      glowColor: speakerColor || '#a855f7',
+      glowColor: hasValidColor ? safeColor : '#a855f7',
     },
     normal: {
-      borderGradient: speakerColor || 'var(--color-primary)',
+      borderGradient: hasValidColor ? safeColor : 'var(--color-primary)',
       bgGradient: 'linear-gradient(135deg, var(--color-card), transparent)',
-      glowColor: speakerColor || 'var(--color-primary)',
+      glowColor: hasValidColor ? safeColor : 'var(--color-primary)',
     },
   };
 
@@ -87,7 +102,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
             transition-transform duration-300 group-hover:scale-110
             ${importance === 'iconic' ? 'text-8xl opacity-20' : 'text-7xl opacity-10'}
           `}
-          style={{ color: speakerColor }}
+          style={hasValidColor ? { color: safeColor } : undefined}
           aria-hidden="true"
         >
           "
@@ -100,7 +115,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
             transition-transform duration-300 group-hover:scale-110
             ${importance === 'iconic' ? 'text-8xl opacity-20' : 'text-7xl opacity-10'}
           `}
-          style={{ color: speakerColor }}
+          style={hasValidColor ? { color: safeColor } : undefined}
           aria-hidden="true"
         >
           "
@@ -117,8 +132,8 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
             className={`
               ${importance === 'iconic' ? 'bg-clip-text text-transparent' : ''}
             `}
-            style={importance === 'iconic' && speakerColor ? {
-              backgroundImage: `linear-gradient(135deg, ${speakerColor}, ${speakerColor}cc)`,
+            style={importance === 'iconic' && hasValidColor ? {
+              backgroundImage: `linear-gradient(135deg, ${safeColor}, ${safeColor}cc)`,
             } : undefined}
           >
             {quote}
@@ -130,11 +145,11 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
           {speaker && (
             <cite
               className="not-italic font-semibold text-lg flex items-center gap-2"
-              style={{ color: speakerColor }}
+              style={hasValidColor ? { color: safeColor } : undefined}
             >
               <span 
                 className="w-3 h-3 rounded-full animate-pulse"
-                style={{ backgroundColor: speakerColor }}
+                style={hasValidColor ? { backgroundColor: safeColor } : undefined}
               />
               {speaker}
             </cite>
@@ -163,8 +178,8 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
           `}
           style={{
             background: importance === 'iconic' 
-              ? `linear-gradient(135deg, ${speakerColor || '#6366f1'}, ${speakerColor ? speakerColor + 'cc' : '#a855f7'})`
-              : speakerColor || '#a855f7',
+              ? `linear-gradient(135deg, ${hasValidColor ? safeColor : '#6366f1'}, ${hasValidColor ? safeColor + 'cc' : '#a855f7'})`
+              : hasValidColor ? safeColor : '#a855f7',
           }}
         >
           {importance === 'iconic' && '⭐ 经典'}
